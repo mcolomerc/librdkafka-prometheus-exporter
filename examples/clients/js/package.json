@@ -1,0 +1,17 @@
+{
+    "name": "examples",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "start": "BOOTSTRAP_SERVERS=localhost:29092 TOPIC=test-topic-js STATS_EXPORTER_URL=http://localhost STATS_EXPORTER_PORT=7979 node index.js"
+    },
+    "author": "",
+    "license": "MIT",
+    "dependencies": {
+      "@confluentinc/kafka-javascript": "0.1.15-devel",
+      "axios": "~1.7.2"
+    }
+  }
+ 
