@@ -85,6 +85,19 @@ services:
       - librdkafka-exporter
       - broker
 
+  dotnet-client:
+    build: 
+      context: ./clients/dotnet/
+      dockerfile: Dockerfile
+    container_name: dotnet-client
+    environment:
+      TOPIC: test-topic-dotnet
+      STATS_EXPORTER_URL: http://librdkafka-exporter:7979 
+      BOOTSTRAP_SERVERS: broker:29092 
+    depends_on:
+      - librdkafka-exporter
+      - broker
+
   prometheus:
     image: prom/prometheus:v2.47.2
     container_name: prometheus
