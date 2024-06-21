@@ -87,7 +87,7 @@ services:
 
   dotnet-client:
     build: 
-      context: ./clients/dotnet/
+      context: ./clients/dotnet/PrometheusExporter
       dockerfile: Dockerfile
     container_name: dotnet-client
     environment:
