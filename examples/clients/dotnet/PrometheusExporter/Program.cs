@@ -4,9 +4,9 @@ using System.Text;
 using Confluent.Kafka;
 using Newtonsoft.Json;
 
-string broker = Environment.GetEnvironmentVariable("BOOTSTRAP_SERVERS");
-string topic = Environment.GetEnvironmentVariable("TOPIC");
-string statsServer = Environment.GetEnvironmentVariable("STATS_EXPORTER_URL");
+string broker = Environment.GetEnvironmentVariable("BOOTSTRAP_SERVERS") ?? throw new InvalidOperationException();
+string topic = Environment.GetEnvironmentVariable("TOPIC") ?? throw new InvalidOperationException();
+string statsServer = Environment.GetEnvironmentVariable("STATS_EXPORTER_URL") ?? throw new InvalidOperationException();
 HttpClient httpClient = new HttpClient();
 
 
