@@ -2,6 +2,7 @@
 
 using System.Text;
 using Confluent.Kafka;
+using Confluent.Kafka.Admin;
 using Newtonsoft.Json;
 
 string broker = Environment.GetEnvironmentVariable("BOOTSTRAP_SERVERS") ?? throw new InvalidOperationException();
@@ -14,6 +15,21 @@ HttpClient httpClient = new HttpClient();
 // Wait for the brokers
 Thread.Sleep(15000);
 
+var config = new AdminClientConfig { BootstrapServers = broker };
+
+using var adminClient = new AdminClientBuilder(config).Build();
+        
+try
+{
+    await CreateTopicIfNotExists(adminClient, topic);
+    Console.WriteLine($"Topic '{topic}' is ready.");
+}
+
+catch (CreateTopicsException e)
+{
+    Console.WriteLine($"An error occured creating topic {e.Results[0].Topic}: {e.Results[0].Error.Reason}");
+}
+
 // Start consumer thread
 var consumerThread = new Thread(() => ConsumerTask());
 consumerThread.Start();
@@ -23,7 +39,8 @@ var producerConfig = new ProducerConfig
 {
     BootstrapServers = broker,
     StatisticsIntervalMs = 5000,
-    ClientId = "dotnet-client"
+    ClientId = "dotnet-client",
+    AllowAutoCreateTopics = true
 };
 
 using var producer = new ProducerBuilder<Null, string>(producerConfig)
@@ -71,7 +88,8 @@ void ConsumerTask()
         GroupId = "dotnet-consumer-group",
         AutoOffsetReset = AutoOffsetReset.Earliest,
         EnableAutoOffsetStore = false,
-        SessionTimeoutMs = 6000
+        SessionTimeoutMs = 6000,
+        AllowAutoCreateTopics = true
     };
 
     using var consumer = new ConsumerBuilder<Ignore, string>(consumerConfig)
@@ -95,5 +113,30 @@ void ConsumerTask()
     catch (OperationCanceledException)
     {
         consumer.Close();
+    }
+}
+
+async Task CreateTopicIfNotExists(IAdminClient adminClient, string topicName)
+{
+    // Check if the topic already exists
+    var metadata = adminClient.GetMetadata(TimeSpan.FromSeconds(10));
+    bool topicExists = metadata.Topics.Exists(t => t.Topic == topicName);
+
+    if (!topicExists)
+    {
+        // Create the topic
+        var topicSpecification = new TopicSpecification
+        {
+            Name = topicName,
+            NumPartitions = 1, // Set the number of partitions
+            ReplicationFactor = 1 // Set the replication factor
+        };
+
+        await adminClient.CreateTopicsAsync(new[] { topicSpecification });
+        Console.WriteLine($"Topic '{topicName}' created.");
+    }
+    else
+    {
+        Console.WriteLine($"Topic '{topicName}' already exists.");
     }
 }
