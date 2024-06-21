@@ -142,9 +142,23 @@ docker-compose logs py-client
 
 #### .Net
 
-`TBD`
+Dir: `./clients/dotnet/PrometheusExporter`
 
-## Devlopment
+Produce 1000 messages and consume them. There is a 500ms gap between each message production.
+
+Environment variables:
+
+- `TOPIC: test-topic-py` produce and consume.  
+- `STATS_EXPORTER_URL`: http://librdkafka-exporter:7979
+- `BOOTSTRAP_SERVERS: broker:29092`
+
+Logs: 
+
+```bash
+docker-compose logs dotnet-client
+```
+
+## Development
 
 ### Run Sources
 
@@ -173,6 +187,5 @@ TODOs:
   - Add filters
   - Add more metrics/panels
 - Clients
-  - .NET example
   - Error handling
   
